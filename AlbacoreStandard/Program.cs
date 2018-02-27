@@ -8,7 +8,7 @@ namespace Albacore
         {
             if (args.Length < 2)
             {
-                Console.WriteLine("Usage: AlbacoreDBDeployer <script_directory> (<connection_string> | -local <instance_name> -db <database_name>)");
+                Console.WriteLine(Properties.Strings.Usage);
                 return;
             }
 
@@ -27,8 +27,12 @@ namespace Albacore
                 connectionString = args[1];
             }
 
+            Console.WriteLine(Properties.Strings.Hello);
+
             var scriptRunner = new ScriptRunner(connectionString);
-            scriptRunner.RunScripts(scriptDirectory);
+            int scriptsRun = scriptRunner.RunScripts(scriptDirectory);
+            
+            Console.WriteLine(scriptsRun > 0 ? Properties.Strings.Done : Properties.Strings.None);
         }
     }
 }

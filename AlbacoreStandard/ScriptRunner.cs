@@ -19,8 +19,10 @@ namespace Albacore
             _connectionString = connectionString;
         }
 
-        internal void RunScripts(string scriptDirectory)
+        internal int RunScripts(string scriptDirectory)
         {
+            int scriptsRun = 0;
+
             var changeLogRepository = new ChangeLogRepository(_connectionString);
 
             var sqlFiles = Directory.EnumerateFiles(scriptDirectory).ToArray();
@@ -34,6 +36,8 @@ namespace Albacore
                     if (!changeLog.Any(x => file.EndsWith(x)))
                     {
                         var scriptFile = new FileInfo(file);
+                        Console.WriteLine(String.Format(Properties.Strings.RunningScript, scriptFile.Name));
+                        
                         var scriptText = scriptFile.OpenText().ReadToEnd();
 
                         var scriptBatches = scriptText.Split(ScriptSeparators, StringSplitOptions.RemoveEmptyEntries)
@@ -47,10 +51,14 @@ namespace Albacore
                             }
                         }
                         changeLogRepository.UpdateChangeLog(file);
+                        scriptsRun++;
+                        Console.WriteLine(Properties.Strings.ScriptDone);
                     }
                 }
                 deployment.Complete();
             }
+
+            return scriptsRun;
         }
     }
 }
