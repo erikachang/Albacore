@@ -32,9 +32,8 @@ namespace Albacore.ChangeLog
 
             var scriptNumber = scriptName.Split('-').First();
 
-            var sqlUpdatedChangelog = String.Format(@"INSERT INTO SchemaChangeLog (ScriptNumber, ScriptName)
-                                        VALUES ('{0}', '{1}')",
-                                        scriptNumber,
+            var sqlUpdatedChangelog = String.Format(@"INSERT INTO SchemaChangeLog (ScriptName)
+                                        VALUES ('{0}')",
                                         scriptName);
 
             using (var connection = new SqlConnection(_connectionString))
