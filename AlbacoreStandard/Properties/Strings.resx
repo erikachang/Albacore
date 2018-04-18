@@ -133,6 +133,6 @@
     <value>... Done!</value>
   </data>
   <data name="Usage" xml:space="preserve">
-    <value>"Usage: AlbacoreDBDeployer &lt;script_directory&gt; (&lt;connection_string&gt; | -local &lt;instance_name&gt; -db &lt;database_name&gt;)"</value>
+    <value>"Usage: AlbacoreDBDeployer &lt;script_directory&gt;</value>
   </data>
 </root>

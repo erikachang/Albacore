@@ -106,7 +106,7 @@ namespace Albacore.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &quot;Usage: AlbacoreDBDeployer &lt;script_directory&gt; (&lt;connection_string&gt; | -local &lt;instance_name&gt; -db &lt;database_name&gt;)&quot;.
+        ///   Looks up a localized string similar to &quot;Usage: AlbacoreDBDeployer &lt;script_directory&gt;.
         /// </summary>
         internal static string Usage {
             get {

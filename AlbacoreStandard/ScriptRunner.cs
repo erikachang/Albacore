@@ -1,10 +1,8 @@
-﻿using Albacore.ChangeLog;
-using Dapper;
+﻿using Albacore.Properties;
 using System;
-using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
-using System.Transactions;
+using System.Text;
 
 namespace Albacore
 {
@@ -14,51 +12,55 @@ namespace Albacore
         private static string[] ScriptSeparators = new string[] { "GO" };
         private static char[] TrimCharacters = new char[] { ' ', '\r', '\n' };
 
+        private readonly string _updateChangeLogScript = "INSERT INTO [SchemaChangeLog] ([ScriptName]) VALUES ('{0}')";
+        private readonly string _ifScriptAlreadyAdded = "IF (SELECT COUNT(1) FROM [SchemaChangeLog] WHERE [ScriptName] = '{0}') = 0";
+        private readonly string _begin = "BEGIN";
+        private readonly string _end = "END";
+
         internal ScriptRunner(string connectionString)
         {
             _connectionString = connectionString;
         }
 
-        internal int RunScripts(string scriptDirectory)
+        internal string CompileSingleScript(string scriptDirectory)
         {
-            int scriptsRun = 0;
+            var scriptBuilder = new StringBuilder();
 
-            var changeLogRepository = new ChangeLogRepository(_connectionString);
+            var sqlFiles = Directory.EnumerateFiles(scriptDirectory)
+                .ToList();
+            sqlFiles.Sort();
 
-            var sqlFiles = Directory.EnumerateFiles(scriptDirectory).ToArray();
-            var changeLog = changeLogRepository.GetChangelog()
-                .Select(x => x.ScriptName).ToArray();
-            
-            using (var deployment = new TransactionScope())
+            foreach (string file in sqlFiles)
             {
-                foreach (var file in sqlFiles)
+                string fileName = file.Split('\\').Last();
+
+                var scriptFile = new FileInfo(file);
+                Console.WriteLine(String.Format(Strings.RunningScript, scriptFile.Name));
+
+                string scriptText = scriptFile.OpenText().ReadToEnd();
+
+                var scriptBatches = scriptText.Split(ScriptSeparators, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim(TrimCharacters));
+
+                foreach (string script in scriptBatches)
                 {
-                    if (!changeLog.Any(x => file.EndsWith(x)))
+                    scriptBuilder.AppendLine(ScriptSeparators.First());
+                    if (!String.IsNullOrEmpty(script))
                     {
-                        var scriptFile = new FileInfo(file);
-                        Console.WriteLine(String.Format(Properties.Strings.RunningScript, scriptFile.Name));
-                        
-                        var scriptText = scriptFile.OpenText().ReadToEnd();
-
-                        var scriptBatches = scriptText.Split(ScriptSeparators, StringSplitOptions.RemoveEmptyEntries)
-                            .Select(x => x.Trim(TrimCharacters));
-
-                        using (var sqlDatabase = new SqlConnection(_connectionString))
-                        {
-                            foreach (var script in scriptBatches)
-                            {
-                                sqlDatabase.Execute(script);
-                            }
-                        }
-                        changeLogRepository.UpdateChangeLog(file);
-                        scriptsRun++;
-                        Console.WriteLine(Properties.Strings.ScriptDone);
+                        scriptBuilder.AppendLine(String.Format(_ifScriptAlreadyAdded, fileName));
+                        scriptBuilder.AppendLine(_begin);
+                        scriptBuilder.AppendLine(script);
+                        scriptBuilder.AppendLine(_end);
                     }
                 }
-                deployment.Complete();
+
+                scriptBuilder.AppendLine(String.Format(_ifScriptAlreadyAdded, fileName));
+                scriptBuilder.AppendLine(String.Format(_updateChangeLogScript, fileName));
+
+                Console.WriteLine(Strings.ScriptDone);
             }
 
-            return scriptsRun;
+            return scriptBuilder.ToString();
         }
     }
 }

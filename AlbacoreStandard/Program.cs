@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Albacore.Properties;
+using System;
+using System.IO;
 
 namespace Albacore
 {
@@ -6,33 +8,23 @@ namespace Albacore
     {
         static void Main(string[] args)
         {
-            if (args.Length < 2)
+            if (args.Length < 1)
             {
-                Console.WriteLine(Properties.Strings.Usage);
+                Console.WriteLine(Strings.Usage);
                 return;
             }
 
-            var scriptDirectory = args[0];
-            string connectionString = String.Empty;
+            string scriptDirectory = args[0];
 
-            if (args[1].Equals("-local"))
-            {
-                var instanceName = args[2];
-                var databaseName = args[4];
+            Console.WriteLine(Strings.Hello);
 
-                connectionString = $@"Server=(localdb)\{instanceName};Initial Catalog={databaseName};Integrated Security=true";
-            }
-            else
-            {
-                connectionString = args[1];
-            }
+            var scriptRunner = new ScriptRunner(String.Empty);
+            string script = scriptRunner.CompileSingleScript(scriptDirectory);
+            string outputFile = Path.Combine(scriptDirectory, $"AlbacoreScript {DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")}.sql");
 
-            Console.WriteLine(Properties.Strings.Hello);
+            File.WriteAllText(outputFile, script);
 
-            var scriptRunner = new ScriptRunner(connectionString);
-            int scriptsRun = scriptRunner.RunScripts(scriptDirectory);
-            
-            Console.WriteLine(scriptsRun > 0 ? Properties.Strings.Done : Properties.Strings.None);
+            Console.WriteLine(Strings.Done);
         }
     }
 }

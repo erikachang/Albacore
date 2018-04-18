@@ -8,16 +8,16 @@ namespace Albacore.ChangeLog
 {
     public class ChangeLogRepository
     {
-        private readonly String _connectionString;
+        private readonly string _connectionString;
 
-        public ChangeLogRepository(String connectionString)
+        public ChangeLogRepository(string connectionString)
         {
             _connectionString = connectionString;
         }
 
         public IEnumerable<ChangeLog> GetChangelog()
         {
-            var query = @"SELECT * FROM SchemaChangeLog";
+            string query = @"SELECT * FROM SchemaChangeLog";
 
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -25,14 +25,14 @@ namespace Albacore.ChangeLog
             }
         }
 
-        public bool UpdateChangeLog(String scriptFullName)
+        public bool UpdateChangeLog(string scriptFullName)
         {
-            var scriptName = scriptFullName.Split('\\')
+            string scriptName = scriptFullName.Split('\\')
                 .Last();
 
-            var scriptNumber = scriptName.Split('-').First();
+            string scriptNumber = scriptName.Split('-').First();
 
-            var sqlUpdatedChangelog = String.Format(@"INSERT INTO SchemaChangeLog (ScriptName)
+            string sqlUpdatedChangelog = String.Format(@"INSERT INTO SchemaChangeLog (ScriptName)
                                         VALUES ('{0}')",
                                         scriptName);
 
