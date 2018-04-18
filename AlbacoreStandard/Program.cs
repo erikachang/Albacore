@@ -8,17 +8,17 @@ namespace Albacore
     {
         static void Main(string[] args)
         {
-            if (args.Length < 1)
+            Console.WriteLine(Strings.Hello);
+            Console.WriteLine("Please inform script directory: ");
+            string scriptDirectory = Console.ReadLine();
+
+            if (!Directory.Exists(scriptDirectory))
             {
-                Console.WriteLine(Strings.Usage);
+                Console.WriteLine("Couldn't read directory. Exiting...");
                 return;
             }
 
-            string scriptDirectory = args[0];
-
-            Console.WriteLine(Strings.Hello);
-
-            var scriptRunner = new ScriptRunner(String.Empty);
+            var scriptRunner = new ScriptCompiler(String.Empty);
             string script = scriptRunner.CompileSingleScript(scriptDirectory);
             string outputFile = Path.Combine(scriptDirectory, $"AlbacoreScript {DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")}.sql");
 

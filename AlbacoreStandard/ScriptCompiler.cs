@@ -6,21 +6,17 @@ using System.Text;
 
 namespace Albacore
 {
-    internal class ScriptRunner
+    internal class ScriptCompiler
     {
-        private readonly string _connectionString;
-        private static string[] ScriptSeparators = new string[] { "GO" };
-        private static char[] TrimCharacters = new char[] { ' ', '\r', '\n' };
+        private static readonly string[] ScriptSeparators = new string[] { "GO" };
+        private static readonly char[] TrimCharacters = new char[] { ' ', '\r', '\n' };
 
-        private readonly string _updateChangeLogScript = "INSERT INTO [SchemaChangeLog] ([ScriptName]) VALUES ('{0}')";
-        private readonly string _ifScriptAlreadyAdded = "IF (SELECT COUNT(1) FROM [SchemaChangeLog] WHERE [ScriptName] = '{0}') = 0";
-        private readonly string _begin = "BEGIN";
-        private readonly string _end = "END";
+        private static readonly string _updateChangeLogScript = "INSERT INTO [SchemaChangeLog] ([ScriptName]) VALUES ('{0}')";
+        private static readonly string _ifScriptNotYetAdded = "IF (SELECT COUNT(1) FROM [SchemaChangeLog] WHERE [ScriptName] = '{0}') = 0";
+        private static readonly string _begin = "BEGIN";
+        private static readonly string _end = "END";
 
-        internal ScriptRunner(string connectionString)
-        {
-            _connectionString = connectionString;
-        }
+        internal ScriptCompiler() { }
 
         internal string CompileSingleScript(string scriptDirectory)
         {
@@ -47,14 +43,14 @@ namespace Albacore
                     scriptBuilder.AppendLine(ScriptSeparators.First());
                     if (!String.IsNullOrEmpty(script))
                     {
-                        scriptBuilder.AppendLine(String.Format(_ifScriptAlreadyAdded, fileName));
+                        scriptBuilder.AppendLine(String.Format(_ifScriptNotYetAdded, fileName));
                         scriptBuilder.AppendLine(_begin);
                         scriptBuilder.AppendLine(script);
                         scriptBuilder.AppendLine(_end);
                     }
                 }
 
-                scriptBuilder.AppendLine(String.Format(_ifScriptAlreadyAdded, fileName));
+                scriptBuilder.AppendLine(String.Format(_ifScriptNotYetAdded, fileName));
                 scriptBuilder.AppendLine(String.Format(_updateChangeLogScript, fileName));
 
                 Console.WriteLine(Strings.ScriptDone);

@@ -74,7 +74,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
-    <Compile Include="ScriptRunner.cs" />
+    <Compile Include="ScriptCompiler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
