@@ -22,10 +22,9 @@ namespace Albacore
             string script = scriptRunner.CompileSingleScript(scriptDirectory);
 
             Console.WriteLine("How would you like to name your script? ");
-            string outputName = Console.ReadLine();
-
-            string outputFile = Path.Combine(scriptDirectory, outputName);
-
+            string outputName = Path.ChangeExtension(Console.ReadLine(), ".sql");
+            string outputFile = Path.Combine(Directory.GetCurrentDirectory(), outputName);
+            
             File.WriteAllText(outputFile, script);
 
             Console.WriteLine(Strings.Done);
