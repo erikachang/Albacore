@@ -18,13 +18,18 @@ namespace Albacore
                 return;
             }
 
-            var scriptRunner = new ScriptCompiler(String.Empty);
+            var scriptRunner = new ScriptCompiler();
             string script = scriptRunner.CompileSingleScript(scriptDirectory);
-            string outputFile = Path.Combine(scriptDirectory, $"AlbacoreScript {DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")}.sql");
+
+            Console.WriteLine("How would you like to name your script? ");
+            string outputName = Console.ReadLine();
+
+            string outputFile = Path.Combine(scriptDirectory, outputName);
 
             File.WriteAllText(outputFile, script);
 
             Console.WriteLine(Strings.Done);
+            Console.ReadKey();
         }
     }
 }
